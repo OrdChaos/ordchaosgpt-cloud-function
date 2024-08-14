@@ -1,27 +1,6 @@
 const axios = require('axios');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-let cachedClient = null;
-
-async function connect2Database(uri) {
-    if (cachedClient) {
-        return cachedClient;
-    }
-
-    const client = new MongoClient(uri, {
-        serverApi: {
-            version: ServerApiVersion.v1,
-            strict: true,
-            deprecationErrors: true,
-        }
-    });
-
-    await client.connect();
-    cachedClient = client;
-
-    return client;
-}
-
 module.exports = async (req, res) => {
     const apiKey = process.env.API_KEY;
     const uri = process.env.MONGODB_URI;
@@ -77,7 +56,15 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const client = await connect2Database(uri);
+        const client = new MongoClient(uri, {
+            serverApi: {
+                version: ServerApiVersion.v1,
+                strict: true,
+                deprecationErrors: true,
+            }
+        });
+
+        await client.connect();
 
         return res.status(200).send("完成链接数据库");
 
@@ -119,5 +106,7 @@ module.exports = async (req, res) => {
         res.status(200).send(summary);
     } catch (error) {
         res.status(500).send("摘要生成失败：服务器错误");
+    } finally {
+        await client.close();
     }
 };
