@@ -1,5 +1,5 @@
 const axios = require('axios');
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 
 module.exports = async (req, res) => {
     const apiKey = process.env.API_KEY;
@@ -17,43 +17,46 @@ module.exports = async (req, res) => {
         return res.status(500).send("摘要生成失败：未提供url");
     }
 
-    const connection = await mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME
+    const pool = new Pool({
+        connectionString: process.env.POSTGRES_URL,
     });
-    const [rows] = await connection.execute(
-        'SELECT summary FROM summaries WHERE url = ?',
-        [pageUrl]
-    );
-    
-    if (rows.length > 0) {
-        res.status(200).send(rows[0].summary);
-    } else {
-        try {
-            const requestBody = {
-                model: "qwen-long",
-                messages: [
-                    { role: "system", content: "You are a helpful summary generator." },
-                    { role: "user", content: `请为以下内容用中文生成长度为150汉字左右的摘要，摘要只有一个自然段，且只给出摘要即可，不要说其他任何话: ${content}` }
-                ],
-                temperature: 0.8,
-                top_p: 0.8
-            };
-            const response = await axios.post(`${apiUrl}/chat/completions`, requestBody, {
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            const summary = response.data.choices[0].message.content.trim();
 
-            res.status(200).send(summary);
-        } catch (error) {
-            res.status(500).send("摘要生成失败：返回格式不正确");
-        }
+    const client = await pool.connect();
+    const selectQuery = 'SELECT summary FROM summaries WHERE url = $1';
+    const selectResult = await client.query(selectQuery, [pageUrl]);
+
+    if (selectResult.rows.length > 0) {
+        const { summary } = selectResult.rows[0];
+        client.release();
+        return res.status(200).send(summary);
     }
 
-    await connection.end();
+    const requestBody = {
+        model: "qwen-long",
+        messages: [
+            { role: "system", content: "You are a helpful summary generator." },
+            { role: "user", content: `请为以下内容用中文生成长度为150汉字左右的摘要，摘要只有一个自然段，且只给出摘要即可，不要说其他任何话: ${content}` }
+        ],
+        temperature: 0.8,
+        top_p: 0.8
+    };
+
+    try {
+        const response = await axios.post(`${apiUrl}/chat/completions`, requestBody, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const summary = response.data.choices[0].message.content.trim();
+
+        const insertQuery = 'INSERT INTO summaries (url, summary) VALUES ($1, $2)';
+        await client.query(insertQuery, [pageUrl, summary]);
+        client.release();
+
+        res.status(200).send(summary);
+    } catch (error) {
+        res.status(500).send("摘要生成失败：返回格式不正确");
+    }
 }
