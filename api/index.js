@@ -2,6 +2,8 @@ const mysql = require('mysql2/promise');
 const axios = require('axios');
 require('dotenv').config();
 
+export const maxDuration = 60;
+
 module.exports = async (req, res) => {
     const apiKey = process.env.API_KEY;
     const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1";
