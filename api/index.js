@@ -14,6 +14,10 @@ module.exports = async (req, res) => {
         return res.status(403).send("摘要生成失败：来源不被允许");
     }
 
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+
     if (!apiKey) {
         return res.status(500).send("摘要生成失败：未设置API_KEY");
     }
