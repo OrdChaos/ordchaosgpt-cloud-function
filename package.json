@@ -14,7 +14,9 @@
   "author": "OrdChaos",
   "license": "ISC",
   "dependencies": {
+    "@vercel/edge-config": "^1.2.1",
     "axios": "^1.7.4",
-    "mongodb": "^6.8.0"
+    "mongodb": "^6.8.0",
+    "mysql2": "^3.11.0"
   }
 }
