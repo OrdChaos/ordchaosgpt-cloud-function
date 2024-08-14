@@ -1,6 +1,14 @@
 const axios = require('axios');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
+const client = new MongoClient("mongodb+srv://OrdChaos:<password>@cluster0.dqxo0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
+
 module.exports = async (req, res) => {
     const apiKey = process.env.API_KEY;
     const uri = process.env.MONGODB_URI;
@@ -56,13 +64,6 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const client = new MongoClient(uri, {
-            serverApi: {
-                version: ServerApiVersion.v1,
-                strict: true,
-                deprecationErrors: true,
-            }
-        });
 
         await client.connect();
 
