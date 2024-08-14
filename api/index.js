@@ -77,15 +77,13 @@ module.exports = async (req, res) => {
     }
 
     try {
-        console.log("[OrdChaosGPT] Connecting to database...");
         const client = await connect2Database(uri);
         const db = client.db("gptSummariesDB");
         const summariesCollection = db.collection("summaries");
-        console.log("[OrdChaosGPT] Connected to database.");
 
-        console.log("[OrdChaosGPT] Checking for existing summary...");
+        return res.status(200).send("完成链接数据库");
+
         const existingSummary = await summariesCollection.findOne({ url: pageUrl });
-        console.log("[OrdChaosGPT] Existing summary:", existingSummary);
 
         if (existingSummary) {
             return res.status(200).send(existingSummary.summary);
@@ -102,14 +100,12 @@ module.exports = async (req, res) => {
         };
 
         
-        console.log("[OrdChaosGPT] Making API request...");
         const response = await axios.post(`${apiUrl}/chat/completions`, requestBody, {
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             }
         });
-        console.log("[OrdChaosGPT] API request completed.");
 
         const summary = response.data.choices[0].message.content.trim();
 
@@ -121,7 +117,6 @@ module.exports = async (req, res) => {
 
         res.status(200).send(summary);
     } catch (error) {
-        console.error("摘要生成失败：", error);
         res.status(500).send("摘要生成失败：服务器错误");
     }
 };
