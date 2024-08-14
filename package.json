@@ -2,9 +2,9 @@
   "name": "ordchaosgpt-cloud-function",
   "version": "1.0.0",
   "description": "Cloud Function For OrdChaosGPT.",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "git add . && git commit -m\"Update\" && git push origin main"
   },
   "keywords": [
     "cloud",
@@ -12,5 +12,8 @@
     "gpt"
   ],
   "author": "OrdChaos",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.4"
+  }
 }
