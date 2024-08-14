@@ -78,10 +78,11 @@ module.exports = async (req, res) => {
 
     try {
         const client = await connect2Database(uri);
-        const db = client.db("gptSummariesDB");
-        const summariesCollection = db.collection("summaries");
 
         return res.status(200).send("完成链接数据库");
+
+        const db = client.db("gptSummariesDB");
+        const summariesCollection = db.collection("summaries");
 
         const existingSummary = await summariesCollection.findOne({ url: pageUrl });
 
