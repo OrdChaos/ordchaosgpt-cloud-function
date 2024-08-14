@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
             model: "qwen-long",
             messages: [
                 { role: "system", content: "You are a helpful summary generator." },
-                { role: "user", content: `请为以下内容用中文生成长度为150汉字左右的摘要，摘要只有一个自然段，且只给出摘要即可，不要说其他任何话: ${content}` }
+                { role: "user", content: `请为以下内容用中文生成长度为150汉字左右的摘要，摘要只有一个自然段，其中不要包含markdown格式，纯文本即可，且只需给出摘要，不要说其他任何话: ${content}` }
             ],
             temperature: 0.8,
             top_p: 0.8
