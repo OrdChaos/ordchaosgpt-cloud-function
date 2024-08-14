@@ -1,17 +1,7 @@
 const axios = require('axios');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-
-const client = new MongoClient("mongodb+srv://OrdChaos:<password>@cluster0.dqxo0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
-});
 
 module.exports = async (req, res) => {
     const apiKey = process.env.API_KEY;
-    const uri = process.env.MONGODB_URI;
     const original = process.env.ORIGIN;
     const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1";
     const content = req.query.content;
@@ -20,10 +10,6 @@ module.exports = async (req, res) => {
 
     if (!apiKey) {
         return res.status(500).send("摘要生成失败：API_KEY 未定义");
-    }
-
-    if (!uri) {
-        return res.status(500).send("摘要生成失败：MONGODB_URI 未定义");
     }
 
     if(original) {
@@ -64,20 +50,6 @@ module.exports = async (req, res) => {
     }
 
     try {
-
-        await client.connect();
-
-        return res.status(200).send("完成链接数据库");
-
-        const db = client.db("gptSummariesDB");
-        const summariesCollection = db.collection("summaries");
-
-        const existingSummary = await summariesCollection.findOne({ url: pageUrl });
-
-        if (existingSummary) {
-            return res.status(200).send(existingSummary.summary);
-        }
-
         const requestBody = {
             model: "qwen-long",
             messages: [
@@ -107,7 +79,5 @@ module.exports = async (req, res) => {
         res.status(200).send(summary);
     } catch (error) {
         res.status(500).send("摘要生成失败：服务器错误");
-    } finally {
-        await client.close();
     }
 };
