@@ -7,6 +7,12 @@ module.exports = async (req, res) => {
     const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1";
     const content = req.query.content;
     const url = req.query.url;
+    const allowedOrigins = process.env.ORIGIN ? process.env.ORIGIN.split(',') : [];
+
+    const origin = req.headers.origin || req.headers.referer;
+    if (!origin || !isOriginAllowed(origin, allowedOrigins)) {
+        return res.status(403).send("摘要生成失败：来源不被允许");
+    }
 
     if (!apiKey) {
         return res.status(500).send("摘要生成失败：未设置API_KEY");
@@ -60,4 +66,22 @@ module.exports = async (req, res) => {
     } finally {
         await connection.end();
     }
+}
+
+function isOriginAllowed(origin, allowedOrigins) {
+    const url = new URL(origin);
+    const hostname = url.hostname;
+
+    for (let allowedOrigin of allowedOrigins) {
+        allowedOrigin = allowedOrigin.trim();
+        if (allowedOrigin.startsWith('*.')) {
+            const domain = allowedOrigin.slice(2);
+            if (hostname.endsWith(domain)) {
+                return true;
+            }
+        } else if (hostname === allowedOrigin || origin === allowedOrigin) {
+            return true;
+        }
+    }
+    return false;
 }
