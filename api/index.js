@@ -2,7 +2,29 @@ const mysql = require('mysql2/promise');
 const axios = require('axios');
 require('dotenv').config();
 
+const allowCors = fn => async (req, res) => {
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    );
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+    return await fn(req, res);
+}
+  
+const handler = (req, res) => {
+    const d = new Date();
+    res.end(d.toString());
+}
+
 module.exports = async (req, res) => {
+    allowCors(handler);
+
     const apiKey = process.env.API_KEY;
     const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1";
     const content = req.query.content;
@@ -13,10 +35,6 @@ module.exports = async (req, res) => {
     if (!origin || !isOriginAllowed(origin, allowedOrigins)) {
         return res.status(403).send("摘要生成失败：来源不被允许");
     }
-
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 
     if (!apiKey) {
         return res.status(500).send("摘要生成失败：未设置API_KEY");
