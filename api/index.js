@@ -25,7 +25,7 @@ async function connect2Database(uri) {
 module.exports = async (req, res) => {
     const apiKey = process.env.API_KEY;
     const uri = process.env.MONGODB_URI;
-    const allowedDomains = process.env.ORIGIN ? process.env.ORIGIN.split(',') : [];
+    const original = process.env.ORIGIN;
     const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1";
     const content = req.query.content;
     const pageUrl = req.query.url;
@@ -39,29 +39,33 @@ module.exports = async (req, res) => {
         return res.status(500).send("摘要生成失败：MONGODB_URI 未定义");
     }
 
-    const extractDomain = (url) => {
-        try {
-            const { hostname } = new URL(url);
-            return hostname;
-        } catch (error) {
-            return null;
-        }
-    };
+    if(original) {
+        const allowedDomains = process.env.ORIGIN ? process.env.ORIGIN.split(',') : [];
 
-    const originDomain = extractDomain(origin);
-
-    const isDomainAllowed = (domain) => {
-        return allowedDomains.some(allowedDomain => {
-            if (allowedDomain.includes('*')) {
-                const regex = new RegExp(`^${allowedDomain.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`);
-                return regex.test(domain);
+        const extractDomain = (url) => {
+            try {
+                const { hostname } = new URL(url);
+                return hostname;
+            } catch (error) {
+                return null;
             }
-            return allowedDomain === domain;
-        });
-    };
+        };
 
-    if (!originDomain || !isDomainAllowed(originDomain)) {
-        return res.status(403).send("摘要生成失败：不允许的来源");
+        const originDomain = extractDomain(origin);
+
+        const isDomainAllowed = (domain) => {
+            return allowedDomains.some(allowedDomain => {
+                if (allowedDomain.includes('*')) {
+                    const regex = new RegExp(`^${allowedDomain.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`);
+                    return regex.test(domain);
+                }
+                return allowedDomain === domain;
+            });
+        };
+
+        if (!originDomain || !isDomainAllowed(originDomain)) {
+            return res.status(403).send("摘要生成失败：不允许的来源");
+        }
     }
 
     if (!content || content.trim() === '') {
