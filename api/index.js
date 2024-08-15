@@ -8,6 +8,7 @@ module.exports = async (req, res) => {
     const content = req.query.content;
     const url = req.query.url;
     const allowedOrigins = process.env.ORIGIN ? process.env.ORIGIN.split(',') : [];
+    const pro = process.env.PROMOTE;
 
     const origin = req.headers.origin || req.headers.referer;
     if (!origin || !isOriginAllowed(origin, allowedOrigins)) {
@@ -43,7 +44,7 @@ module.exports = async (req, res) => {
             model: "qwen-long",
             messages: [
                 { role: "system", content: "You are a helpful summary generator." },
-                { role: "user", content: `为以下内容给出摘要，满足要求：1.摘要只有一个自然段;2.其中不要包含markdown格式，纯文本即可;3.只需给出摘要，不要说其他任何话4.使用第三人称视角进行转述（用“作者”一词指代作者）而非第一人称;5.100字上下，不要过长;正文：${content}` }
+                { role: "user", content: pro }
             ],
             temperature: 0.8,
             top_p: 0.8

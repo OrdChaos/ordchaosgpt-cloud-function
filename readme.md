@@ -6,7 +6,7 @@ TianliGPT的下位代替品（大概）
 
 优势是无服务器（？真的是优势吗）
 
-缺点是稳定性（至少我不提供SLA保证）与速度（依据文章长度与网速，获取到摘要的时间约10秒）
+缺点是稳定性（至少我不提供SLA保证）与速度（依据文章长度与网速，获取到摘要的时间约5秒）
 
 ## 调用
 
@@ -18,11 +18,12 @@ url相同而再次请求时，不再重复生成内容而直接访问数据库
 
 点击以下按钮以自动部署到Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOrdChaos%2Fordchaosgpt-cloud-function&env=API_KEY,ORIGIN,POSTGRES_HOST,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DATABASE&project-name=qwen-long-ordchaosgpt&repository-name=qwen-long-ordchaosgpt)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOrdChaos%2Fordchaosgpt-cloud-function&env=API_KEY,PROMOTE,ORIGIN,POSTGRES_HOST,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DATABASE&project-name=qwen-long-ordchaosgpt&repository-name=qwen-long-ordchaosgpt)
 
 环境变量：
 
 - API_KEY: 阿里云DashScope模型服务灵积apikey，在[这里](https://dashscope.console.aliyun.com/apiKey)申请
+- PROMOTE: 生成前的提示语句，可以自行设置，类似于：`为以下内容给出摘要，满足要求：1.摘要只有一个自然段;2.其中不要包含markdown格式，纯文本即可;3.只需给出摘要，不要说其他任何话4.使用第三人称视角进行转述（用“作者”一词指代作者）而非第一人称;5.100字上下，不要过长;正文：${content}`，其中正文内容用${content}代替。
 - ORIGIN: 要使用api的域名，支持多个（用`,`分割）与泛域名（用`*`）
 - POSTGRES_HOST: MySQL数据库地址
 - POSTGRES_USER: MySQL数据库用户名
