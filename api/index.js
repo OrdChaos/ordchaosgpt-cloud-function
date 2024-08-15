@@ -8,7 +8,6 @@ module.exports = async (req, res) => {
     const content = req.query.content;
     const url = req.query.url;
     const allowedOrigins = process.env.ORIGIN ? process.env.ORIGIN.split(',') : [];
-    const pro = process.env.PROMOTE;
 
     const origin = req.headers.origin || req.headers.referer;
     if (!origin || !isOriginAllowed(origin, allowedOrigins)) {
@@ -44,7 +43,7 @@ module.exports = async (req, res) => {
             model: "qwen-long",
             messages: [
                 { role: "system", content: "You are a helpful summary generator." },
-                { role: "user", content: pro }
+                { role: "user", content: process.env.PROMOTE }
             ],
             temperature: 0.8,
             top_p: 0.8
