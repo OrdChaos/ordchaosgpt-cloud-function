@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
             model: "qwen-long",
             messages: [
                 { role: "system", content: "You are a helpful summary generator." },
-                { role: "user", content: process.env.PROMOTE }
+                { role: "user", content: process.env.PROMOTE.concat(content) }
             ],
             temperature: 0.8,
             top_p: 0.8
