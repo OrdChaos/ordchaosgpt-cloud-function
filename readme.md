@@ -2,7 +2,7 @@
 
 TianliGPT的下位代替品（大概）
 
-使用阿里云通义千问（qwen-long）作为摘要生成引擎，vercel部署，mysql数据库持久化数据储存
+使用阿里云通义千问（qwen-long）作为摘要生成引擎，Vercel部署，MySQL数据库持久化数据储存
 
 优势是无服务器（？真的是优势吗）
 
@@ -24,10 +24,22 @@ url相同而再次请求时，不再重复生成内容而直接访问数据库
 
 - API_KEY: 阿里云DashScope模型服务灵积apikey，在[这里](https://dashscope.console.aliyun.com/apiKey)申请
 - ORIGIN: 要使用api的域名，支持多个（用`,`分割）与泛域名（用`*`）
-- POSTGRES_HOST: mysql数据库地址
-- POSTGRES_USER: mysql数据库用户名
-- POSTGRES_PASSWORD: mysql数据库用户密码
-- POSTGRES_DATABASE: mysql数据库名称
+- POSTGRES_HOST: MySQL数据库地址
+- POSTGRES_USER: MySQL数据库用户名
+- POSTGRES_PASSWORD: MySQL数据库用户密码
+- POSTGRES_DATABASE: MySQL数据库名称
+
+对于你的MySQL数据库，你需要提前建表。
+
+使用以下SQL语句：
+
+```sql
+CREATE TABLE summaries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    url VARCHAR(255) NOT NULL UNIQUE,
+    summary TEXT NOT NULL
+);
+```
 
 ## 部署-前端
 
@@ -37,7 +49,6 @@ url相同而再次请求时，不再重复生成内容而直接访问数据库
 //改写自TianliGPT前端
 
 var ordchaosGPT = {
-  //读取文章中的所有文本
   getTitleAndContent: function() {
     try {
       const title = document.title;
@@ -55,7 +66,6 @@ var ordchaosGPT = {
       }
 
       for (let p of paragraphs) {
-        // 移除包含'http'的链接
         const filteredText = p.innerText.replace(/https?:\/\/[^\s]+/g, '');
         content += filteredText;
       }
@@ -75,7 +85,7 @@ var ordchaosGPT = {
 
   fetchordchaosGPT: async function(content, url) {
     const apiUrl = `${ordchaosGPT_apiurl}api/index.js?content=${encodeURIComponent(content)}&url=${encodeURIComponent(url)}`;
-    const timeout = 30000; // 设置超时时间（毫秒）
+    const timeout = 30000;
 
     try {
       const controller = new AbortController();
@@ -110,7 +120,6 @@ function typeWriterEffect(text, element) {
     }
   }
 
-  // 显示光标
   element.classList.add('typing');
   type();
 }
@@ -194,4 +203,4 @@ ENJOY！
 
 ~~有没有人提一个用mongodb的PR？我没什么时间~~
 
-感觉mysql还是有点臃肿
+感觉MySQL还是有点臃肿
