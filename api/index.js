@@ -25,11 +25,11 @@ module.exports = async (req, res) => {
     }
 
     const connection = await mysql.createConnection({
-        host: process.env.POSTGRES_HOST,
+        host: process.env.HOST,
         port: 3306,
-        user: process.env.POSTGRES_USER,
-        password: process.env.POSTGRES_PASSWORD,
-        database: process.env.POSTGRES_DATABASE
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
     });
 
     try {
