@@ -8,6 +8,10 @@ TianliGPT的下位代替品（大概）
 
 缺点是稳定性（至少我不提供SLA保证）与速度（依据文章长度与网速，获取到摘要的时间约5秒）
 
+**请注意，本项目已开启HSTS和Preload，必须使用HTTPS来访问部署好的api**
+
+**不希望使用的情况下，请删去vercel.json中的`{ "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubdomains; preload" }`**
+
 ## 调用
 
 `GET https://your.deployment.address/api/index.js?content=正文&url=对应页面`即可
